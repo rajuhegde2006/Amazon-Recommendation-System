@@ -1,0 +1,2368 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"><html><head><META http-equiv="Content-Type" content="text/html; charset=utf-8"></head><body>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
+    
+    
+    
+<div>
+  <div>
+    <div>
+
+<div>
+<div>
+<div>In [238]:</div>
+<div>
+    <div>
+<div><pre><span></span><span>import</span> <span>pandas</span> <span>as</span> <span>pd</span>
+<span>import</span> <span>numpy</span> <span>as</span> <span>np</span>
+<span>import</span> <span>matplotlib.pyplot</span> <span>as</span> <span>plt</span>
+<span>import</span> <span>seaborn</span> <span>as</span> <span>sns</span>
+<span>%</span><span>matplotlib</span> inline
+
+<span>from</span> <span>scipy.sparse.linalg</span> <span>import</span> <span>svds</span>
+<span>from</span> <span>sklearn.model_selection</span> <span>import</span> <span>train_test_split</span>
+
+<span>import</span> <span>warnings</span>
+<span>warnings</span><span>.</span><span>filterwarnings</span><span>(</span><span>&#39;<wbr>ignore&#39;</span><span>)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div><div>
+</div><div>
+<div>
+<h3>Importing the Dataset<a href="#0.1_Importing-the-Dataset">¶</a></h3>
+</div>
+</div>
+</div>
+<div>
+<div>
+<div>In [239]:</div>
+<div>
+    <div>
+<div><pre><span></span><span>reviews_data</span> <span>=</span> <span>pd</span><span>.</span><span>read_csv</span><span>(</span><span>&#39;ratings_<wbr>Electronics.csv&#39;</span><span>,</span><span>header</span><span>=</span><span>None</span><span>,</span> <span>names</span><span>=</span><span>[</span><span>&#39;userId&#39;</span><span>,</span><span>&#39;productId&#39;</span><span>,</span><span>&#39;<wbr>ratings&#39;</span><span>,</span><span>&#39;timestamp&#39;</span><span>])</span>
+<span>reviews_data</span><span>.</span><span>head</span><span>(</span><span>10</span><span>)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div>
+<div>
+
+
+<div>
+
+    <div>Out[239]:</div>
+
+
+
+<div>
+<div>
+
+<table border="1">
+  <thead>
+    <tr style="text-align:right">
+      <th></th>
+      <th>userId</th>
+      <th>productId</th>
+      <th>ratings</th>
+      <th>timestamp</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>AKM1MP6P0OYPR</td>
+      <td>0132793040</td>
+      <td>5.0</td>
+      <td>1365811200</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>A2CX7LUOHB2NDG</td>
+      <td>0321732944</td>
+      <td>5.0</td>
+      <td>1341100800</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>A2NWSAGRHCP8N5</td>
+      <td>0439886341</td>
+      <td>1.0</td>
+      <td>1367193600</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>A2WNBOD3WNDNKT</td>
+      <td>0439886341</td>
+      <td>3.0</td>
+      <td>1374451200</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>A1GI0U4ZRJA8WN</td>
+      <td>0439886341</td>
+      <td>1.0</td>
+      <td>1334707200</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>A1QGNMC6O1VW39</td>
+      <td>0511189877</td>
+      <td>5.0</td>
+      <td>1397433600</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>A3J3BRHTDRFJ2G</td>
+      <td>0511189877</td>
+      <td>2.0</td>
+      <td>1397433600</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>A2TY0BTJOTENPG</td>
+      <td>0511189877</td>
+      <td>5.0</td>
+      <td>1395878400</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <td>A34ATBPOK6HCHY</td>
+      <td>0511189877</td>
+      <td>5.0</td>
+      <td>1395532800</td>
+    </tr>
+    <tr>
+      <th>9</th>
+      <td>A89DO69P0XZ27</td>
+      <td>0511189877</td>
+      <td>5.0</td>
+      <td>1395446400</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div>
+<div>
+<div>In [ ]:</div>
+<div>
+    <div>
+<div><pre><span></span> 
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div><div>
+</div><div>
+<div>
+<h3>Exploratory Data Analysis<a href="#0.1_Exploratory-Data-Analysis">¶</a></h3>
+</div>
+</div>
+</div>
+<div>
+<div>
+<div>In [240]:</div>
+<div>
+    <div>
+<div><pre><span></span><span>print</span><span>(</span><span>&quot;Number of rows in the dataset &quot;</span><span>,</span><span>reviews_data</span><span>.</span><span>shape</span><span>[</span><span>0</span><span>])</span>
+<span>print</span><span>(</span><span>&quot;Number of columns in the dataset &quot;</span><span>,</span> <span>reviews_data</span><span>.</span><span>shape</span><span>[</span><span>1</span><span>])</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div>
+<div>
+
+
+<div>
+
+    <div></div>
+
+
+<div>
+<pre>Number of rows in the dataset  7824482
+Number of columns in the dataset  4
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div>
+<div>
+<div>In [241]:</div>
+<div>
+    <div>
+<div><pre><span></span><span>reviews_data</span><span>.</span><span>info</span><span>()</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div>
+<div>
+
+
+<div>
+
+    <div></div>
+
+
+<div>
+<pre>&lt;class &#39;pandas.core.frame.DataFrame&#39;&gt;
+RangeIndex: 7824482 entries, 0 to 7824481
+Data columns (total 4 columns):
+userId       object
+productId    object
+ratings      float64
+timestamp    int64
+dtypes: float64(1), int64(1), object(2)
+memory usage: 238.8+ MB
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div>
+<div>
+<div>In [242]:</div>
+<div>
+    <div>
+<div><pre><span></span><span>reviews_data</span><span>.</span><span>dtypes</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div>
+<div>
+
+
+<div>
+
+    <div>Out[242]:</div>
+
+
+
+
+<div>
+<pre>userId        object
+productId     object
+ratings      float64
+timestamp      int64
+dtype: object</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div>
+<div>
+<div>In [243]:</div>
+<div>
+    <div>
+<div><pre><span></span><span>reviews_data</span><span>.</span><span>isna</span><span>()</span><span>.</span><span>sum</span><span>()</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div>
+<div>
+
+
+<div>
+
+    <div>Out[243]:</div>
+
+
+
+
+<div>
+<pre>userId       0
+productId    0
+ratings      0
+timestamp    0
+dtype: int64</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div>
+<div>
+<div>In [244]:</div>
+<div>
+    <div>
+<div><pre><span></span><span>print</span><span>(</span><span>&quot;The number of unique users in the dataset: &quot;</span><span>,</span> <span>reviews_data</span><span>[</span><span>&#39;userId&#39;</span><span>]</span><span>.</span><span>nunique</span><span><wbr>())</span>
+<span>print</span><span>(</span><span>&quot;The number of unique products in the dataset: &quot;</span><span>,</span> <span>reviews_data</span><span>[</span><span>&#39;productId&#39;</span><span>]</span><span>.</span><span>nuni<wbr>que</span><span>())</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div>
+<div>
+
+
+<div>
+
+    <div></div>
+
+
+<div>
+<pre>The number of unique users in the dataset:  4201696
+The number of unique products in the dataset:  476002
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div>
+<div>
+<div>In [245]:</div>
+<div>
+    <div>
+<div><pre><span></span><span>print</span><span>(</span><span>&quot;The unique ratings given by users are &quot;</span><span>,</span> <span>reviews_data</span><span>[</span><span>&#39;ratings&#39;</span><span>]</span><span>.</span><span>unique</span><span><wbr>())</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div>
+<div>
+
+
+<div>
+
+    <div></div>
+
+
+<div>
+<pre>The unique ratings given by users are  [5. 1. 3. 2. 4.]
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div>
+<div>
+<div>In [ ]:</div>
+<div>
+    <div>
+<div><pre><span></span> 
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div><div>
+</div><div>
+<div>
+<h3>Data Visualisation<a href="#0.1_Data-Visualisation">¶</a></h3>
+</div>
+</div>
+</div>
+<div>
+<div>
+<div>In [246]:</div>
+<div>
+    <div>
+<div><pre><span></span><span>plt</span><span>.</span><span>figure</span><span>(</span><span>figsize</span><span>=</span><span>(</span><span>8</span><span>,</span><span>8</span><span>))</span>
+<span>sns</span><span>.</span><span>distplot</span><span>(</span><span>reviews_data</span><span>[</span><span>&#39;<wbr>ratings&#39;</span><span>],</span> <span>kde</span><span>=</span><span>False</span><span>)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div>
+<div>
+
+
+<div>
+
+    <div>Out[246]:</div>
+
+
+
+
+<div>
+<pre>&lt;matplotlib.axes._subplots.<wbr>AxesSubplot at 0x14f19d5c0&gt;</pre>
+</div>
+
+</div>
+
+<div>
+
+    <div></div>
+
+
+
+
+<div>
+<img>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div><div>
+</div><div>
+<div>
+<h3>Plot analysis<a href="#0.1_Plot-analysis">¶</a></h3><p>We see that the rating 5.0 is given 4000000 plus times. The 2.0 ratings have been given least number of times</p>
+
+</div>
+</div>
+</div>
+<div>
+<div>
+<div>In [ ]:</div>
+<div>
+    <div>
+<div><pre><span></span> 
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div>
+<div>
+<div>In [247]:</div>
+<div>
+    <div>
+<div><pre><span></span><span>reviews_data</span><span>[</span><span>&#39;ratings&#39;</span><span>]</span><span>.</span><span>value_<wbr>counts</span><span>()</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div>
+<div>
+
+
+<div>
+
+    <div>Out[247]:</div>
+
+
+
+
+<div>
+<pre>5.0    4347541
+4.0    1485781
+1.0     901765
+3.0     633073
+2.0     456322
+Name: ratings, dtype: int64</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div>
+<div>
+<div>In [ ]:</div>
+<div>
+    <div>
+<div><pre><span></span> 
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div><div>
+</div><div>
+<div>
+<h2>Take a subset of the dataset to make it less sparse/ denser<a href="#0.1_Take-a-subset-of-the-dataset-to-make-it-less-sparse/-denser">¶</a></h2>
+</div>
+</div>
+</div>
+<div>
+<div>
+<div>In [248]:</div>
+<div>
+    <div>
+<div><pre><span></span><span>reviews_data</span><span>.</span><span>head</span><span>()</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div>
+<div>
+
+
+<div>
+
+    <div>Out[248]:</div>
+
+
+
+<div>
+<div>
+
+<table border="1">
+  <thead>
+    <tr style="text-align:right">
+      <th></th>
+      <th>userId</th>
+      <th>productId</th>
+      <th>ratings</th>
+      <th>timestamp</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>AKM1MP6P0OYPR</td>
+      <td>0132793040</td>
+      <td>5.0</td>
+      <td>1365811200</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>A2CX7LUOHB2NDG</td>
+      <td>0321732944</td>
+      <td>5.0</td>
+      <td>1341100800</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>A2NWSAGRHCP8N5</td>
+      <td>0439886341</td>
+      <td>1.0</td>
+      <td>1367193600</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>A2WNBOD3WNDNKT</td>
+      <td>0439886341</td>
+      <td>3.0</td>
+      <td>1374451200</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>A1GI0U4ZRJA8WN</td>
+      <td>0439886341</td>
+      <td>1.0</td>
+      <td>1334707200</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div>
+<div>
+<div>In [249]:</div>
+<div>
+    <div>
+<div><pre><span></span><span>reviews_data</span><span>.</span><span>groupby</span><span>(</span><span>&#39;userId&#39;</span><span>)</span><span><wbr>.</span><span>count</span><span>()[</span><span>&#39;ratings&#39;</span><span>]</span><span>.</span><span>sort_<wbr>values</span><span>(</span><span>ascending</span><span>=</span><span>False</span><span>)[:</span><span>10</span><span>]</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div>
+<div>
+
+
+<div>
+
+    <div>Out[249]:</div>
+
+
+
+
+<div>
+<pre>userId
+A5JLAU2ARJ0BO     520
+ADLVFFE4VBT8      501
+A3OXHLG6DIBRW8    498
+A6FIAB28IS79      431
+A680RUE1FDO8B     406
+A1ODOGXEYECQQ8    380
+A36K2N527TXXJN    314
+A2AY4YUOX2N1BQ    311
+AWPODHOB4GFWL     308
+A25C2M3QF9G7OQ    296
+Name: ratings, dtype: int64</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div><div>
+</div><div>
+<div>
+<h4>Keeping the users only who has given 50 or more number of ratings<a href="#0.1_Keeping-the-users-only-who-has-given-50-or-more-number-of-ratings">¶</a></h4>
+</div>
+</div>
+</div>
+<div>
+<div>
+<div>In [250]:</div>
+<div>
+    <div>
+<div><pre><span></span><span>counts</span> <span>=</span> <span>reviews_data</span><span>[</span><span>&#39;userId&#39;</span><span>]</span><span>.</span><span>value_<wbr>counts</span><span>()</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div>
+<div>
+<div>In [251]:</div>
+<div>
+    <div>
+<div><pre><span></span><span>df</span> <span>=</span> <span>reviews_data</span><span>[</span><span>reviews_data</span><span>[</span><span>&#39;<wbr>userId&#39;</span><span>]</span><span>.</span><span>isin</span><span>(</span><span>counts</span><span>[</span><span>counts</span> <span>&gt;=</span> <span>50</span><span>]</span><span>.</span><span>index</span><span>)]</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div>
+<div>
+<div>In [252]:</div>
+<div>
+    <div>
+<div><pre><span></span><span>df</span><span>.</span><span>shape</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div>
+<div>
+
+
+<div>
+
+    <div>Out[252]:</div>
+
+
+
+
+<div>
+<pre>(125871, 4)</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div>
+<div>
+<div>In [253]:</div>
+<div>
+    <div>
+<div><pre><span></span><span>print</span><span>(</span><span>&quot;The number of unique users in the final dataset: &quot;</span><span>,</span> <span>df</span><span>[</span><span>&#39;userId&#39;</span><span>]</span><span>.</span><span>nunique</span><span>())</span>
+<span>print</span><span>(</span><span>&quot;The number of unique products in the final dataset: &quot;</span><span>,</span> <span>df</span><span>[</span><span>&#39;productId&#39;</span><span>]</span><span>.</span><span>nunique</span><span>())</span>
+<span>print</span><span>(</span><span>&quot;The unique ratings given by users are &quot;</span><span>,</span> <span>df</span><span>[</span><span>&#39;ratings&#39;</span><span>]</span><span>.</span><span>unique</span><span>())</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div>
+<div>
+
+
+<div>
+
+    <div></div>
+
+
+<div>
+<pre>The number of unique users in the final dataset:  1540
+The number of unique products in the final dataset:  48190
+The unique ratings given by users are  [5. 3. 1. 4. 2.]
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div>
+<div>
+<div>In [ ]:</div>
+<div>
+    <div>
+<div><pre><span></span> 
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div>
+<div>
+<div>In [254]:</div>
+<div>
+    <div>
+<div><pre><span></span><span>plt</span><span>.</span><span>figure</span><span>(</span><span>figsize</span><span>=</span><span>(</span><span>8</span><span>,</span><span>8</span><span>))</span>
+<span>sns</span><span>.</span><span>distplot</span><span>(</span><span>df</span><span>[</span><span>&#39;ratings&#39;</span><span>],</span> <span>kde</span><span>=</span><span>False</span><span>)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div>
+<div>
+
+
+<div>
+
+    <div>Out[254]:</div>
+
+
+
+
+<div>
+<pre>&lt;matplotlib.axes._subplots.<wbr>AxesSubplot at 0x169aba860&gt;</pre>
+</div>
+
+</div>
+
+<div>
+
+    <div></div>
+
+
+
+
+<div>
+<img>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div>
+<div>
+<div>In [255]:</div>
+<div>
+    <div>
+<div><pre><span></span><span>df</span><span>[</span><span>&#39;ratings&#39;</span><span>]</span><span>.</span><span>value_counts</span><span>()</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div>
+<div>
+
+
+<div>
+
+    <div>Out[255]:</div>
+
+
+
+
+<div>
+<pre>5.0    71034
+4.0    32295
+3.0    12060
+2.0     5367
+1.0     5115
+Name: ratings, dtype: int64</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div><div>
+</div><div>
+<div>
+<h3>Calculate density of the rating matrix<a href="#0.1_Calculate-density-of-the-rating-matrix">¶</a></h3>
+</div>
+</div>
+</div>
+<div>
+<div>
+<div>In [256]:</div>
+<div>
+    <div>
+<div><pre><span></span><span>pivot_table</span> <span>=</span> <span>df</span><span>.</span><span>pivot</span><span>(</span><span>index</span><span>=</span><span>&#39;userId&#39;</span><span>,</span><span>column<wbr>s</span><span>=</span><span>&#39;productId&#39;</span><span>,</span><span>values</span><span>=</span><span>&#39;ratings&#39;</span><span><wbr>)</span><span>.</span><span>fillna</span><span>(</span><span>0</span><span>)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div>
+<div>
+<div>In [257]:</div>
+<div>
+    <div>
+<div><pre><span></span><span>print</span><span>(</span><span>&quot;The shape of ratings matrix is &quot;</span><span>,</span> <span>pivot_table</span><span>.</span><span>shape</span><span>)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div>
+<div>
+
+
+<div>
+
+    <div></div>
+
+
+<div>
+<pre>The shape of ratings matrix is  (1540, 48190)
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div>
+<div>
+<div>In [258]:</div>
+<div>
+    <div>
+<div><pre><span></span><span>pivot_table</span><span>.</span><span>head</span><span>()</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div>
+<div>
+
+
+<div>
+
+    <div>Out[258]:</div>
+
+
+
+<div>
+<div>
+
+<table border="1">
+  <thead>
+    <tr style="text-align:right">
+      <th>productId</th>
+      <th>0594451647</th>
+      <th>0594481813</th>
+      <th>0970407998</th>
+      <th>0972683275</th>
+      <th>1400501466</th>
+      <th>1400501520</th>
+      <th>1400501776</th>
+      <th>1400532620</th>
+      <th>1400532655</th>
+      <th>140053271X</th>
+      <th>...</th>
+      <th>B00L5YZCCG</th>
+      <th>B00L8I6SFY</th>
+      <th>B00L8QCVL6</th>
+      <th>B00LA6T0LS</th>
+      <th>B00LBZ1Z7K</th>
+      <th>B00LED02VY</th>
+      <th>B00LGN7Y3G</th>
+      <th>B00LGQ6HL8</th>
+      <th>B00LI4ZZO8</th>
+      <th>B00LKG1MC8</th>
+    </tr>
+    <tr>
+      <th>userId</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>A100UD67AHFODS</th>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>A100WO06OQR8BQ</th>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>A105S56ODHGJEK</th>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>A105TOJ6LTVMBG</th>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>A10AFVU66A79Y1</th>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+  </tbody>
+</table>
+<p>5 rows Ã 48190 columns</p>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div>
+<div>
+<div>In [259]:</div>
+<div>
+    <div>
+<div><pre><span></span><span>given_num_of_ratings</span> <span>=</span> <span>np</span><span>.</span><span>count_nonzero</span><span>(</span><span>pivot_table</span><span>)</span>
+<span>print</span><span>(</span><span>&quot;The given number of ratings = &quot;</span><span>,</span> <span>given_num_of_ratings</span><span>)</span>
+<span>possible_num_of_ratings</span> <span>=</span> <span>pivot_table</span><span>.</span><span>shape</span><span>[</span><span>0</span><span>]</span> <span>*</span> <span>pivot_table</span><span>.</span><span>shape</span><span>[</span><span>1</span><span>]</span>
+<span>print</span><span>(</span><span>&quot;The total number of ratings = &quot;</span><span>,</span> <span>possible_num_of_ratings</span><span>)</span>
+<span>density</span> <span>=</span> <span>given_num_of_ratings</span> <span>/</span> <span>possible_num_of_ratings</span>
+<span>sparsity</span> <span>=</span> <span>1</span> <span>-</span> <span>density</span>
+<span>print</span><span>(</span><span>&quot;Density = </span><span>{:4.2f}</span><span>%&quot;</span><span>.</span><span>format</span><span>(</span><span>density</span> <span>*</span> <span>100</span><span>))</span>
+<span>print</span><span>(</span><span>&quot;Sparsity = </span><span>{:4.2f}</span><span>%&quot;</span><span>.</span><span>format</span><span>(</span><span>sparsity</span> <span>*</span> <span>100</span><span>))</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div>
+<div>
+
+
+<div>
+
+    <div></div>
+
+
+<div>
+<pre>The given number of ratings =  125871
+The total number of ratings =  74212600
+Density = 0.17%
+Sparsity = 99.83%
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div>
+<div>
+<div>In [260]:</div>
+<div>
+    <div>
+<div><pre><span></span><span>np</span><span>.</span><span>count_nonzero</span><span>(</span><span>pivot_table</span><span>)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div>
+<div>
+
+
+<div>
+
+    <div>Out[260]:</div>
+
+
+
+
+<div>
+<pre>125871</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div><div>
+</div><div>
+<div>
+<h2>Popularity Based Recommender System<a href="#0.1_Popularity-Based-Recommender-System">¶</a></h2>
+</div>
+</div>
+</div>
+<div>
+<div>
+<div>In [261]:</div>
+<div>
+    <div>
+<div><pre><span></span><span>df</span><span>.</span><span>groupby</span><span>(</span><span>&#39;productId&#39;</span><span>)</span><span>.</span><span>mean</span><span>()</span><span><wbr>.</span><span>head</span><span>()</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div>
+<div>
+
+
+<div>
+
+    <div>Out[261]:</div>
+
+
+
+<div>
+<div>
+
+<table border="1">
+  <thead>
+    <tr style="text-align:right">
+      <th></th>
+      <th>ratings</th>
+      <th>timestamp</th>
+    </tr>
+    <tr>
+      <th>productId</th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0594451647</th>
+      <td>5.000000</td>
+      <td>1.390176e+09</td>
+    </tr>
+    <tr>
+      <th>0594481813</th>
+      <td>3.000000</td>
+      <td>1.377907e+09</td>
+    </tr>
+    <tr>
+      <th>0970407998</th>
+      <td>2.500000</td>
+      <td>1.300709e+09</td>
+    </tr>
+    <tr>
+      <th>0972683275</th>
+      <td>4.750000</td>
+      <td>1.337256e+09</td>
+    </tr>
+    <tr>
+      <th>1400501466</th>
+      <td>3.333333</td>
+      <td>1.342138e+09</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div>
+<div>
+<div>In [262]:</div>
+<div>
+    <div>
+<div><pre><span></span><span>df</span><span>.</span><span>groupby</span><span>(</span><span>&#39;productId&#39;</span><span>)</span><span>.</span><span>count</span><span>(<wbr>)[</span><span>&#39;ratings&#39;</span><span>]</span><span>.</span><span>sort_values</span><span>(</span><span>ascen<wbr>ding</span> <span>=</span> <span>False</span><span>)</span><span>.</span><span>head</span><span>(</span><span>10</span><span>)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div>
+<div>
+
+
+<div>
+
+    <div>Out[262]:</div>
+
+
+
+
+<div>
+<pre>productId
+B0088CJT4U    206
+B003ES5ZUU    184
+B000N99BBC    167
+B007WTAJTO    164
+B00829TIEK    149
+B008DWCRQW    137
+B00829THK0    137
+B002R5AM7C    128
+B004CLYEDC    118
+B002SZEOLG    113
+Name: ratings, dtype: int64</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div>
+<div>
+<div>In [263]:</div>
+<div>
+    <div>
+<div><pre><span></span><span>ratings_mean_count</span> <span>=</span> <span>pd</span><span>.</span><span>DataFrame</span><span>(</span><span>df</span><span>.</span><span>groupby</span><span>(</span><span>&#39;<wbr>productId&#39;</span><span>)[</span><span>&#39;ratings&#39;</span><span>]</span><span>.</span><span>mean</span><span>())</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div>
+<div>
+<div>In [264]:</div>
+<div>
+    <div>
+<div><pre><span></span><span>ratings_mean_count</span><span>[</span><span>&#39;ratings_<wbr>count&#39;</span><span>]</span> <span>=</span> <span>pd</span><span>.</span><span>DataFrame</span><span>(</span><span>df</span><span>.</span><span>groupby</span><span>(</span><span>&#39;<wbr>productId&#39;</span><span>)[</span><span>&#39;ratings&#39;</span><span>]</span><span>.</span><span>count</span><span>()<wbr>)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div>
+<div>
+<div>In [266]:</div>
+<div>
+    <div>
+<div><pre><span></span><span>print</span><span>(</span><span>&quot;The popularity based recommendations are as follows:&quot;</span><span>)</span>
+<span>ratings_mean_count</span><span>.</span><span>groupby</span><span>(</span><span>&#39;<wbr>productId&#39;</span><span>)</span><span>.</span><span>mean</span><span>()</span><span>.</span><span>sort_values</span><span><wbr>(</span><span>ascending</span><span>=</span><span>False</span><span>,</span> <span>by</span><span>=</span><span>&#39;ratings_count&#39;</span><span>)</span><span>.</span><span>head</span><span>(</span><span>10</span><span>)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div>
+<div>
+
+
+<div>
+
+    <div></div>
+
+
+<div>
+<pre>The popularity based recommendations are as follows:
+</pre>
+</div>
+</div>
+
+<div>
+
+    <div>Out[266]:</div>
+
+
+
+<div>
+<div>
+
+<table border="1">
+  <thead>
+    <tr style="text-align:right">
+      <th></th>
+      <th>ratings</th>
+      <th>ratings_count</th>
+    </tr>
+    <tr>
+      <th>productId</th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>B0088CJT4U</th>
+      <td>4.218447</td>
+      <td>206</td>
+    </tr>
+    <tr>
+      <th>B003ES5ZUU</th>
+      <td>4.864130</td>
+      <td>184</td>
+    </tr>
+    <tr>
+      <th>B000N99BBC</th>
+      <td>4.772455</td>
+      <td>167</td>
+    </tr>
+    <tr>
+      <th>B007WTAJTO</th>
+      <td>4.701220</td>
+      <td>164</td>
+    </tr>
+    <tr>
+      <th>B00829TIEK</th>
+      <td>4.436242</td>
+      <td>149</td>
+    </tr>
+    <tr>
+      <th>B008DWCRQW</th>
+      <td>4.094891</td>
+      <td>137</td>
+    </tr>
+    <tr>
+      <th>B00829THK0</th>
+      <td>4.416058</td>
+      <td>137</td>
+    </tr>
+    <tr>
+      <th>B002R5AM7C</th>
+      <td>4.125000</td>
+      <td>128</td>
+    </tr>
+    <tr>
+      <th>B004CLYEDC</th>
+      <td>4.669492</td>
+      <td>118</td>
+    </tr>
+    <tr>
+      <th>B002SZEOLG</th>
+      <td>4.247788</td>
+      <td>113</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div><div>
+</div><div>
+<div>
+<h2>Collaborative Filtering<a href="#0.1_Collaborative-Filtering">¶</a></h2><h3>Model - Based Collaborative Filtering - SVD<a href="#0.1_Model---Based-Collaborative-Filtering---SVD">¶</a></h3>
+</div>
+</div>
+</div>
+<div>
+<div>
+<div>In [ ]:</div>
+<div>
+    <div>
+<div><pre><span></span> 
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div>
+<div>
+<div>In [267]:</div>
+<div>
+    <div>
+<div><pre><span></span><span>pivot_table</span><span>.</span><span>head</span><span>()</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div>
+<div>
+
+
+<div>
+
+    <div>Out[267]:</div>
+
+
+
+<div>
+<div>
+
+<table border="1">
+  <thead>
+    <tr style="text-align:right">
+      <th>productId</th>
+      <th>0594451647</th>
+      <th>0594481813</th>
+      <th>0970407998</th>
+      <th>0972683275</th>
+      <th>1400501466</th>
+      <th>1400501520</th>
+      <th>1400501776</th>
+      <th>1400532620</th>
+      <th>1400532655</th>
+      <th>140053271X</th>
+      <th>...</th>
+      <th>B00L5YZCCG</th>
+      <th>B00L8I6SFY</th>
+      <th>B00L8QCVL6</th>
+      <th>B00LA6T0LS</th>
+      <th>B00LBZ1Z7K</th>
+      <th>B00LED02VY</th>
+      <th>B00LGN7Y3G</th>
+      <th>B00LGQ6HL8</th>
+      <th>B00LI4ZZO8</th>
+      <th>B00LKG1MC8</th>
+    </tr>
+    <tr>
+      <th>userId</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>A100UD67AHFODS</th>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>A100WO06OQR8BQ</th>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>A105S56ODHGJEK</th>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>A105TOJ6LTVMBG</th>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>A10AFVU66A79Y1</th>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+  </tbody>
+</table>
+<p>5 rows Ã 48190 columns</p>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div>
+<div>
+<div>In [ ]:</div>
+<div>
+    <div>
+<div><pre><span></span> 
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div>
+<div>
+<div>In [268]:</div>
+<div>
+    <div>
+<div><pre><span></span><span>U</span><span>,</span> <span>sigma</span><span>,</span> <span>vT</span> <span>=</span> <span>svds</span><span>(</span><span>pivot_table</span><span>,</span> <span>k</span><span>=</span><span>50</span><span>)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div>
+<div>
+<div>In [269]:</div>
+<div>
+    <div>
+<div><pre><span></span><span>sigma</span> <span>=</span> <span>np</span><span>.</span><span>diag</span><span>(</span><span>sigma</span><span>)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div>
+<div>
+<div>In [270]:</div>
+<div>
+    <div>
+<div><pre><span></span><span>user_predicted_ratings</span> <span>=</span> <span>U</span><span>.</span><span>dot</span><span>(</span><span>sigma</span><span>.</span><span>dot</span><span>(</span><span>vT</span><span>))</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div>
+<div>
+<div>In [271]:</div>
+<div>
+    <div>
+<div><pre><span></span><span>recommender</span> <span>=</span> <span>pd</span><span>.</span><span>DataFrame</span><span>(</span><span>user_predicted_<wbr>ratings</span><span>,</span> <span>columns</span><span>=</span><span>pivot_table</span><span>.</span><span>columns</span><span>,</span> <span>index</span><span>=</span><span>pivot_table</span><span>.</span><span>index</span><span>)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div>
+<div>
+<div>In [272]:</div>
+<div>
+    <div>
+<div><pre><span></span><span>recommender</span><span>.</span><span>head</span><span>()</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div>
+<div>
+
+
+<div>
+
+    <div>Out[272]:</div>
+
+
+
+<div>
+<div>
+
+<table border="1">
+  <thead>
+    <tr style="text-align:right">
+      <th>productId</th>
+      <th>0594451647</th>
+      <th>0594481813</th>
+      <th>0970407998</th>
+      <th>0972683275</th>
+      <th>1400501466</th>
+      <th>1400501520</th>
+      <th>1400501776</th>
+      <th>1400532620</th>
+      <th>1400532655</th>
+      <th>140053271X</th>
+      <th>...</th>
+      <th>B00L5YZCCG</th>
+      <th>B00L8I6SFY</th>
+      <th>B00L8QCVL6</th>
+      <th>B00LA6T0LS</th>
+      <th>B00LBZ1Z7K</th>
+      <th>B00LED02VY</th>
+      <th>B00LGN7Y3G</th>
+      <th>B00LGQ6HL8</th>
+      <th>B00LI4ZZO8</th>
+      <th>B00LKG1MC8</th>
+    </tr>
+    <tr>
+      <th>userId</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>A100UD67AHFODS</th>
+      <td>0.005086</td>
+      <td>0.002178</td>
+      <td>0.003668</td>
+      <td>-0.040843</td>
+      <td>0.009640</td>
+      <td>0.006808</td>
+      <td>0.020659</td>
+      <td>0.000649</td>
+      <td>0.020331</td>
+      <td>0.005633</td>
+      <td>...</td>
+      <td>0.000238</td>
+      <td>-0.061477</td>
+      <td>0.001214</td>
+      <td>-0.123433</td>
+      <td>0.028490</td>
+      <td>0.016109</td>
+      <td>0.002855</td>
+      <td>-0.174568</td>
+      <td>0.011367</td>
+      <td>-0.012997</td>
+    </tr>
+    <tr>
+      <th>A100WO06OQR8BQ</th>
+      <td>0.002286</td>
+      <td>-0.010898</td>
+      <td>-0.000724</td>
+      <td>0.130259</td>
+      <td>0.007506</td>
+      <td>-0.003350</td>
+      <td>0.063711</td>
+      <td>-0.000674</td>
+      <td>0.016111</td>
+      <td>-0.002433</td>
+      <td>...</td>
+      <td>-0.000038</td>
+      <td>0.013766</td>
+      <td>0.001473</td>
+      <td>0.025588</td>
+      <td>-0.042103</td>
+      <td>0.004251</td>
+      <td>0.002177</td>
+      <td>-0.024362</td>
+      <td>-0.014765</td>
+      <td>0.038570</td>
+    </tr>
+    <tr>
+      <th>A105S56ODHGJEK</th>
+      <td>-0.001655</td>
+      <td>-0.002675</td>
+      <td>-0.007355</td>
+      <td>0.007264</td>
+      <td>0.005152</td>
+      <td>-0.003986</td>
+      <td>-0.003480</td>
+      <td>0.006961</td>
+      <td>-0.006606</td>
+      <td>-0.002719</td>
+      <td>...</td>
+      <td>-0.001708</td>
+      <td>-0.051040</td>
+      <td>0.000325</td>
+      <td>-0.054867</td>
+      <td>0.017870</td>
+      <td>-0.004996</td>
+      <td>-0.002426</td>
+      <td>0.083928</td>
+      <td>-0.112205</td>
+      <td>0.005964</td>
+    </tr>
+    <tr>
+      <th>A105TOJ6LTVMBG</th>
+      <td>0.001856</td>
+      <td>0.011019</td>
+      <td>-0.005910</td>
+      <td>-0.014134</td>
+      <td>0.000179</td>
+      <td>0.001877</td>
+      <td>-0.005391</td>
+      <td>-0.001709</td>
+      <td>0.004968</td>
+      <td>0.001402</td>
+      <td>...</td>
+      <td>0.000582</td>
+      <td>-0.009326</td>
+      <td>-0.000465</td>
+      <td>-0.048315</td>
+      <td>0.023302</td>
+      <td>0.006790</td>
+      <td>0.003380</td>
+      <td>0.005460</td>
+      <td>-0.015263</td>
+      <td>-0.025996</td>
+    </tr>
+    <tr>
+      <th>A10AFVU66A79Y1</th>
+      <td>0.001115</td>
+      <td>-0.002670</td>
+      <td>0.011018</td>
+      <td>0.014434</td>
+      <td>0.010319</td>
+      <td>0.006002</td>
+      <td>0.017151</td>
+      <td>0.003726</td>
+      <td>0.001404</td>
+      <td>0.005645</td>
+      <td>...</td>
+      <td>0.000207</td>
+      <td>0.023761</td>
+      <td>0.000747</td>
+      <td>-0.019347</td>
+      <td>-0.012749</td>
+      <td>0.001026</td>
+      <td>0.001364</td>
+      <td>-0.020580</td>
+      <td>0.011828</td>
+      <td>0.012770</td>
+    </tr>
+  </tbody>
+</table>
+<p>5 rows Ã 48190 columns</p>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div>
+<div>
+<div>In [ ]:</div>
+<div>
+    <div>
+<div><pre><span></span> 
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div>
+<div>
+<div>In [274]:</div>
+<div>
+    <div>
+<div><pre><span></span><span>def</span> <span>recommended_items</span><span>(</span><span>user_id</span><span>,</span> <span>recommender</span><span>,</span> <span>n</span><span>=</span><span>5</span><span>):</span>
+        <span>sorted_user_ratings</span> <span>=</span> <span>pivot_table</span><span>.</span><span>loc</span><span>[</span><span>user_id</span><span>]</span><span>.</span><span>sort_<wbr>values</span><span>(</span><span>ascending</span><span>=</span><span>False</span><span>)</span>
+        <span>predicted_user_ratings</span> <span>=</span> <span>recommender</span><span>.</span><span>loc</span><span>[</span><span>user_id</span><span>]</span><span>.</span><span>sort_<wbr>values</span><span>(</span><span>ascending</span><span>=</span><span>False</span><span>)</span>
+        <span>temp</span> <span>=</span> <span>pd</span><span>.</span><span>concat</span><span>([</span><span>sorted_user_ratings</span><span><wbr>,</span> <span>predicted_user_ratings</span><span>],</span><span>axis</span><span>=</span><span>1</span><span><wbr>)</span>
+        <span>temp</span><span>.</span><span>index</span><span>.</span><span>name</span> <span>=</span> <span>&#39;Recommended Items&#39;</span>
+        <span>temp</span><span>.</span><span>columns</span> <span>=</span> <span>[</span><span>&#39;user_ratings&#39;</span><span>,</span> <span>&#39;user_predictions&#39;</span><span>]</span>
+        <span>temp</span> <span>=</span> <span>temp</span><span>.</span><span>loc</span><span>[</span><span>temp</span><span>.</span><span>user_ratings</span> <span>==</span> <span>0</span><span>]</span>
+        <span>temp</span> <span>=</span> <span>temp</span><span>.</span><span>sort_values</span><span>(</span><span>&#39;user_<wbr>predictions&#39;</span><span>,</span><span>ascending</span> <span>=</span> <span>False</span><span>)</span>
+        <span>return</span> <span>temp</span><span>.</span><span>head</span><span>(</span><span>n</span><span>)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div>
+<div>
+<div>In [275]:</div>
+<div>
+    <div>
+<div><pre><span></span><span>recommended_items</span><span>(</span><span>&#39;<wbr>A10AFVU66A79Y1&#39;</span><span>,</span><span>recommender</span><span>,</span> <span>10</span><span>)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div>
+<div>
+
+
+<div>
+
+    <div>Out[275]:</div>
+
+
+
+<div>
+<div>
+
+<table border="1">
+  <thead>
+    <tr style="text-align:right">
+      <th></th>
+      <th>user_ratings</th>
+      <th>user_predictions</th>
+    </tr>
+    <tr>
+      <th>Recommended Items</th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>B0088CJT4U</th>
+      <td>0.0</td>
+      <td>0.745958</td>
+    </tr>
+    <tr>
+      <th>B003ES5ZUU</th>
+      <td>0.0</td>
+      <td>0.633890</td>
+    </tr>
+    <tr>
+      <th>B008DWCRQW</th>
+      <td>0.0</td>
+      <td>0.618328</td>
+    </tr>
+    <tr>
+      <th>B002SQK2F2</th>
+      <td>0.0</td>
+      <td>0.535753</td>
+    </tr>
+    <tr>
+      <th>B0015DYMVO</th>
+      <td>0.0</td>
+      <td>0.521440</td>
+    </tr>
+    <tr>
+      <th>B009SYZ8OC</th>
+      <td>0.0</td>
+      <td>0.507312</td>
+    </tr>
+    <tr>
+      <th>B002WE6D44</th>
+      <td>0.0</td>
+      <td>0.478432</td>
+    </tr>
+    <tr>
+      <th>B0034CL2ZI</th>
+      <td>0.0</td>
+      <td>0.452786</td>
+    </tr>
+    <tr>
+      <th>B008H9BXMK</th>
+      <td>0.0</td>
+      <td>0.449390</td>
+    </tr>
+    <tr>
+      <th>B0079UAT0A</th>
+      <td>0.0</td>
+      <td>0.448773</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div>
+<div>
+<div>In [276]:</div>
+<div>
+    <div>
+<div><pre><span></span><span>rmse_df</span> <span>=</span> <span>pd</span><span>.</span><span>concat</span><span>([</span><span>train</span><span>.</span><span>mean</span><span>(),</span> <span>recommender</span><span>.</span><span>mean</span><span>()],</span> <span>axis</span><span>=</span><span>1</span><span>)</span>
+<span>columns</span> <span>=</span> <span>[</span><span>&#39;avg_actual&#39;</span><span>,</span> <span>&#39;avg_predicted&#39;</span><span>]</span>
+<span>rmse_df</span><span>.</span><span>columns</span> <span>=</span> <span>columns</span>
+<span>rmse_df</span><span>.</span><span>head</span><span>()</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div>
+<div>
+
+
+<div>
+
+    <div>Out[276]:</div>
+
+
+
+<div>
+<div>
+
+<table border="1">
+  <thead>
+    <tr style="text-align:right">
+      <th></th>
+      <th>avg_actual</th>
+      <th>avg_predicted</th>
+    </tr>
+    <tr>
+      <th>productId</th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0594451647</th>
+      <td>0.004058</td>
+      <td>0.001953</td>
+    </tr>
+    <tr>
+      <th>0594481813</th>
+      <td>0.002435</td>
+      <td>0.002875</td>
+    </tr>
+    <tr>
+      <th>0970407998</th>
+      <td>0.004058</td>
+      <td>0.003355</td>
+    </tr>
+    <tr>
+      <th>0972683275</th>
+      <td>0.011364</td>
+      <td>0.010343</td>
+    </tr>
+    <tr>
+      <th>1400501466</th>
+      <td>0.012175</td>
+      <td>0.004871</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div>
+<div>
+<div>In [277]:</div>
+<div>
+    <div>
+<div><pre><span></span><span>RMSE</span> <span>=</span> <span>(((</span><span>rmse_df</span><span>[</span><span>&#39;avg_actual&#39;</span><span>]</span> <span>-</span> <span>rmse_df</span><span>[</span><span>&#39;avg_predicted&#39;</span><span>])</span> <span>**</span> <span>2</span><span>)</span><span>.</span><span>mean</span><span>()</span> <span>**</span> <span>0.5</span><span>)</span>
+<span>print</span><span>(</span><span>&quot;RMSE with SVD model is </span><span>{}</span><span>&quot;</span><span>.</span><span>format</span><span>(</span><span>RMSE</span><span>))</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div>
+<div>
+
+
+<div>
+
+    <div></div>
+
+
+<div>
+<pre>RMSE with SVD model is 0.0036116523217888494
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div><div>
+</div><div>
+<div>
+<h4>Get top - K ( K = 5) recommendations. Since our goal is to recommend new products for each user based on his/her habits, we will recommend 5 new products<a href="#0.1_Get-top---K-(-K-=-5)-recommendations.-Since-our-goal-is-to-recommend-new-products-for-each-user-based-on-his/her-habits,-we-will-recommend-5-new-products">¶</a></h4>
+</div>
+</div>
+</div>
+<div>
+<div>
+<div>In [278]:</div>
+<div>
+    <div>
+<div><pre><span></span><span>recommended_items</span><span>(</span><span>&#39;<wbr>A2AY4YUOX2N1BQ&#39;</span><span>,</span> <span>recommender</span><span>,</span> <span>5</span><span>)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div>
+<div>
+
+
+<div>
+
+    <div>Out[278]:</div>
+
+
+
+<div>
+<div>
+
+<table border="1">
+  <thead>
+    <tr style="text-align:right">
+      <th></th>
+      <th>user_ratings</th>
+      <th>user_predictions</th>
+    </tr>
+    <tr>
+      <th>Recommended Items</th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>B00829TIA4</th>
+      <td>0.0</td>
+      <td>0.787201</td>
+    </tr>
+    <tr>
+      <th>B0034CL2ZI</th>
+      <td>0.0</td>
+      <td>0.771849</td>
+    </tr>
+    <tr>
+      <th>B00004ZCJE</th>
+      <td>0.0</td>
+      <td>0.707015</td>
+    </tr>
+    <tr>
+      <th>B0041MY32Y</th>
+      <td>0.0</td>
+      <td>0.606489</td>
+    </tr>
+    <tr>
+      <th>B004CLYEH8</th>
+      <td>0.0</td>
+      <td>0.504721</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div>
+<div>
+<div>In [ ]:</div>
+<div>
+    <div>
+<div><pre><span></span> 
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div>
+<div>
+<div>In [ ]:</div>
+<div>
+    <div>
+<div><pre><span></span> 
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div>
+<div>
+<div>In [ ]:</div>
+<div>
+    <div>
+<div><pre><span></span> 
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div>
+<div>
+<div>In [ ]:</div>
+<div>
+    <div>
+<div><pre><span></span> 
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    </div>
+  </div>
+</div>
+
+ 
+
+
+
+</body></html>
